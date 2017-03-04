@@ -52,7 +52,7 @@ int main()
 	printf("----------Test as Parameter/Return type----------\n");
 	PassByValue(s1);
 	PassByConstReference(s1);
-	String s5 = ReturnByValue("hello"); // TODO: Which ctor called?
+	String s5 = ReturnByValue("hello"); // The returned temporary object is moved to s5.
 	printf("s5 = %s\n", s5.c_str());
 	s5 = ReturnByValue("world");
 	printf("s5 = %s\n", s5.c_str());
