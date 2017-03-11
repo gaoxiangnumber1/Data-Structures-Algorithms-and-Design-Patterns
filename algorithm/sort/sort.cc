@@ -52,7 +52,7 @@ void SelectionSort(int *data, int first, int last)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // helper temporary stores the sub-range sorted elements of data in merge process,
 // and later copy all sorted elements to data after each merge.
-void Merge(int *data, int first, int middle, int last, int *helper)
+void Merge(int *data, int first, int middle, int last, int *helper) // O(n)
 {
 	int left = first; // index in left-subrange [first, middle).
 	int right = middle; // index in right-subrange [middle, last).
@@ -66,7 +66,7 @@ void Merge(int *data, int first, int middle, int last, int *helper)
 		//		`left < middle && right < last && data[left] <= data[right]`
 		// NOTE:
 		// 1. `||` is short-circuit.
-		// 2. `<=` rather than `<` guarantee sorting stability.
+		// 2. `<=` keep the relative order of equal elements, thus guarantee sorting stability.
 		if(right >= last || (left < middle && data[left] <= data[right]))
 		{
 			helper[helper_index++] = data[left++];
@@ -95,10 +95,88 @@ void MergeSortMain(int *data, int first, int last, int *helper)
 		Merge(data, first, middle, last, helper);
 	}
 }
+// TC: Best = O(nlogn), Average = O(nlogn), Worst = O(nlogn)
+// SC: O(n)
 void MergeSort(int *data, int first, int last) // [first, last)
 {
 	int helper[last - first];
 	MergeSortMain(data, first, last, helper);
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+int Partition(int *data, int first, int last) // O(n)
+{
+	int pivot = data[last - 1];
+	int divide = first;
+	// divide is the index of pivot at last(by swapping with[last - 1]), our aim is:
+	// elements in [first, divide) <= [divide](i.e., pivot)
+	// [divide] < elements in [divide + 1, last)
+	for(int index = first; index < last - 1; ++index)
+	{
+		// NOTE: `<=` not `<` Guarantee the Stability.
+		if(data[index] <= pivot)
+		{
+			if(index != divide) // No need swap when both points to the same element.
+			{
+				// Condition: data[divide] > pivot >= data[index]
+				swap(data[index], data[divide]);
+			}
+			++divide;
+		}
+	}
+	swap(data[divide], data[last - 1]);
+	return divide;
+}
+// TC: Best = O(nlogn), Average = O(nlogn), Worst = O(n^2)
+// SC: Best = O(logn), Worst = O(n)
+void QuickSort(int *data, int first, int last) // [first, last)
+{
+	if(last - first >= 2) // At least 2 elements
+	{
+		int divide = Partition(data, first, last);
+		// Elements in [first, divide) are all <= [divide].
+		// [divide] is < all elements in [divide + 1, last)
+		QuickSort(data, first, divide);
+		QuickSort(data, divide + 1, last);
+	}
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void RadixSort(int *data, int total_digit, int length, int max_number)
+// we assume all numbers are in [0, 10^10 - 1], so total_digit = 10 and
+// because all numbers are in decimal, so max_number = 9.
+{
+	int divisor = 1;  // help to get each digit number from least to most significant digits
+	// for each digit_number: use counting sort to sort.
+	for(int digit = 1; digit <= total_digit; digit++)
+	{
+		// first store corresponding index element's digit_number of data
+		int digit_number[length];
+		for(int index = 0; index < length; index++)
+		{
+			digit_number[index] = (data[index] / divisor) % 10;
+		}
+		// second use counting sort to sort data base on each digit_number
+		int temp[length], count[max_number + 1];
+		memset(count, 0, sizeof(count));
+		for(int index = 0; index < length; index++)
+		{
+			count[digit_number[index]]++;
+		}
+		for(int index = 1; index <= max_number; index++)
+		{
+			count[index] += count[index - 1];
+		}
+		for(int index = length - 1; index >= 0; index--)
+		{
+			temp[count[digit_number[index]] - 1] = data[index];
+			count[digit_number[index]]--;
+		}
+		for(int index = 0; index < length; index++)
+		{
+			data[index] = temp[index];
+		}
+		// third, update divisor to get the next high digit_number.
+		divisor *= 10;
+	}
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void PrintData(int *data, int first, int last)
@@ -133,4 +211,6 @@ int main()
 	Test("BubbleSort", BubbleSort);
 	Test("SelectionSort", SelectionSort);
 	Test("MergeSort", MergeSort);
+	Test("QuickSort", QuickSort);
+	Test("RadixSort", RadixSort);
 }
