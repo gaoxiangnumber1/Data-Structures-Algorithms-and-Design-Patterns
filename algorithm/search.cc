@@ -49,14 +49,15 @@ int BinarySearchRecursive(int *data, int first, int last, int target)
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 const int kNumberOfChar = 128;
+// const int kMod = TODO;
 int QuickPower(int base, int exponent)
 {
 	int power = 1;
-	while(exponent != 0)
+	while(exponent > 0)
 	{
 		if((exponent & 0x1) == 1)
 		{
-			power *= base;
+			power *= base; // %
 		}
 		exponent >>= 1;
 		base *= base;
@@ -68,7 +69,7 @@ int HashValue(const char *data, const int length) // O(length)
 	int hash_value = 0;
 	for(int index = 0; index < length; ++index)
 	{
-		hash_value = hash_value * kNumberOfChar + static_cast<int>(data[index]);
+		hash_value = hash_value * kNumberOfChar + static_cast<int>(data[index]); // %
 	}
 	return hash_value;
 }
@@ -91,10 +92,10 @@ void RKStringSearch(const char *long_string, const char *short_string)
 		}
 		if(index < substring_number - 1)
 		{
-			int to_subtract = static_cast<int>(long_string[index]) * max_power;
+			int to_subtract = static_cast<int>(long_string[index]) * max_power; // %
 			int to_add = static_cast<int>(long_string[index + short_length]);
 			hash_value[index + 1] =
-			    (hash_value[index] - to_subtract) * kNumberOfChar + to_add;
+			    (hash_value[index] - to_subtract) * kNumberOfChar + to_add; // %
 		}
 	}
 }
