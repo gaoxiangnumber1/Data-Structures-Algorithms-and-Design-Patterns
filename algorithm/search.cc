@@ -77,10 +77,10 @@ void RKStringSearch(const char *long_string, const char *short_string)
 {
 	int long_length = static_cast<int>(strlen(long_string));
 	int short_length = static_cast<int>(strlen(short_string));
-	int substring_number = long_length - short_length + 1;
-	int hash_value[substring_number];
 	// Pre-process
 	int target_hash_value = HashValue(short_string, short_length);
+	int substring_number = long_length - short_length + 1;
+	int hash_value[substring_number];
 	hash_value[0] = HashValue(long_string, short_length);
 	int max_power = QuickPower(kNumberOfChar, short_length - 1);
 	for(int index = 0; index < substring_number; ++index)

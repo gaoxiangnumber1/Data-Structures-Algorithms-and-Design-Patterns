@@ -1,37 +1,16 @@
 #include <stdio.h>
+#include <string.h>
 #include <utility>
 using namespace std;
 
+// Assume all inputs are invalid.
+
 // Assume n is the number of elements to be sorted.
-// TC: Best = O(n), Average = O(n^2), Worst = O(n^2)
-// SC: O(1)
-void BubbleSort(int *data, int first, int last) // [first, last)
-{
-	int unsorted = last - first; // The number of unsorted elements.
-	for(; unsorted > 0;) // Repeat only if there are unsorted elements.
-	{
-		int last_swap_index = -1;
-		for(int index = first + 1; index < first + unsorted; ++index)
-		{
-			if(data[index - 1] > data[index])
-			{
-				swap(data[index - 1], data[index]);
-				last_swap_index = index;
-			}
-		}
-		// Up to now, we divide the array into two parts:
-		// 1. [first, last_swap_index): unsorted. Need traverse.
-		// 2. [last_swap_index, last): sorted. No need traverse.
-		unsorted = last_swap_index - first;
-	}
-}
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // TC: Best = O(n^2), Average = O(n^2), Worst = O(n^2)
 // SC: O(1)
 void SelectionSort(int *data, int first, int last)
 {
-	// [first, first_unsorted) is the sorted part.
-	// [first_unsorted, last) is the unsorted part.
+	// [first, first_unsorted) is sorted, [first_unsorted, last) is unsorted.
 	for(int first_unsorted = first; first_unsorted < last - 1; ++first_unsorted)
 	{
 		int min_index = first_unsorted;
@@ -46,12 +25,94 @@ void SelectionSort(int *data, int first, int last)
 		{
 			swap(data[min_index], data[first_unsorted]);
 		}
-		// [first, first_unsorted] is sorted.
+		// One more element is sorted:
+		// [first, first_unsorted + 1) is sorted, [first_unsorted + 1, last) is unsorted.
 	}
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// helper temporary stores the sub-range sorted elements of data in merge process,
-// and later copy all sorted elements to data after each merge.
+// TC: Best = O(n), Average = O(n^2), Worst = O(n^2)
+// SC: O(1)
+void BubbleSort(int *data, int first, int last) // [first, last)
+{
+	int unsorted_number = last - first;
+	// [first, first + unsorted_number) is unsorted, [first + unsorted_number, last) is sorted.
+	while(unsorted_number > 0)
+	{
+		int last_swap_index = -1;
+		// Traverse [first, first + unsorted_number)
+		for(int index = first + 1; index < first + unsorted_number; ++index)
+		{
+			if(data[index - 1] > data[index])
+			{
+				swap(data[index - 1], data[index]);
+				last_swap_index = index;
+			}
+		}
+		// [first, last_swap_index) is unsorted, [last_swap_index, last) is sorted.
+		unsorted_number = last_swap_index - first;
+	}
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// TC: Best = O(n), Average = O(n^2), Worst = O(n^2)
+// SC: O(1)
+void InsertionSort(int *data, int first, int last)
+{
+	// [first, first_unsorted) is sorted, [first_unsorted, last) is unsorted.
+	for(int first_unsorted = first + 1; first_unsorted < last; ++first_unsorted)
+	{
+		int swap_index = first_unsorted;
+		while(swap_index > first && data[swap_index - 1] > data[swap_index])
+		{
+			swap(data[swap_index - 1], data[swap_index]);
+			--swap_index;
+		}
+		// One more element is sorted.
+		// [first, first_unsorted + 1) is sorted; [first_unsorted + 1, last) is unsorted.
+	}
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+int Partition(int *data, int first, int last) // O(n)
+{
+	int pivot = data[last - 1];
+	int divide = first;
+	// value in [first, divide) <= pivot[divide, divide + 1) < value in [divide + 1, last)
+	for(int index = first; index < last - 1; ++index)
+	{
+		if(data[index] <= pivot) // `<=` guarantee the stability.
+		{
+			if(index != divide) // No need swap when both points to the same element.
+			{
+				// data[divide] > pivot >= data[index]
+				swap(data[index], data[divide]);
+			}
+			++divide;
+		}
+	}
+	// divide has two possible values:
+	// 1. divide < last - 1: [divide] > pivot(i.e., [last - 1]), swap them.
+	// 2. divide = last - 1: [divide] = pivot, no need swap.
+	if(divide < last - 1)
+	{
+		swap(data[divide], data[last - 1]);
+	}
+	return divide;
+}
+// TC: Best = O(nlogn), Average = O(nlogn), Worst = O(n^2)
+// SC: Best = O(logn), Worst = O(n)
+void QuickSort(int *data, int first, int last) // [first, last)
+{
+	if(last - first >= 2) // Only one element is auto sorted.
+	{
+		// Divide: value in [first, divide) <= pivot [divide, divide + 1) < value in [divide + 1, last)
+		int divide = Partition(data, first, last);
+		// Conquer: sort [first, divide) and [divide + 1, last) by recursive calls.
+		QuickSort(data, first, divide);
+		QuickSort(data, divide + 1, last);
+		// Combine: subarrays are sorted, no work is needed to combine them,
+		// thus the entire array is sorted.
+	}
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void Merge(int *data, int first, int middle, int last, int *helper) // O(n)
 {
 	int left = first; // index in left-subrange [first, middle).
@@ -62,7 +123,7 @@ void Merge(int *data, int first, int middle, int last, int *helper) // O(n)
 		// Copy left element into helper when:
 		// 1.	Left subrange is not empty and right subrange is empty:
 		//		`left < middle && right >= last`
-		// 2.	Both are not empty and left element is lesser or equal than right element:
+		// 2.	Both are not empty and left element is lesser than or equal to right element:
 		//		`left < middle && right < last && data[left] <= data[right]`
 		// NOTE:
 		// 1. `||` is short-circuit.
@@ -84,14 +145,14 @@ void Merge(int *data, int first, int middle, int last, int *helper) // O(n)
 }
 void MergeSortMain(int *data, int first, int last, int *helper)
 {
-	// When `last - first == 1`: only 1 element is automatically sorted.
-	if(last - first >= 2)
+	if(last - first >= 2) // Only 1 element is auto sorted.
 	{
-		int middle = first + (last - first) / 2;
-		// 1. Sort two subranges: [first, middle), [middle, last).
+		// Divide: divide n-element array into two n/2-element subarrays.
+		int middle = first + ((last - first) >> 1);
+		// Conquer: sort two subarrays [first, middle) and [middle, last) recursively.
 		MergeSortMain(data, first, middle, helper);
 		MergeSortMain(data, middle, last, helper);
-		// 2. Merge two sorted subranges into data.
+		// Combine: merge two sorted subarrays.
 		Merge(data, first, middle, last, helper);
 	}
 }
@@ -99,83 +160,92 @@ void MergeSortMain(int *data, int first, int last, int *helper)
 // SC: O(n)
 void MergeSort(int *data, int first, int last) // [first, last)
 {
-	int helper[last - first];
+	int helper[last]; // helper temporary stores the sorted subarrays in Merge.
 	MergeSortMain(data, first, last, helper);
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-int Partition(int *data, int first, int last) // O(n)
+void HeapSort() {}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// n is the number of inputs, m is the max value.
+// TC: Best = Average = Worst = O(n + m)
+// SC: O(n + m)
+void CountingSort(int *data, int first, int last) // [first, last)
 {
-	int pivot = data[last - 1];
-	int divide = first;
-	// divide is the index of pivot at last(by swapping with[last - 1]), our aim is:
-	// elements in [first, divide) <= [divide](i.e., pivot)
-	// [divide] < elements in [divide + 1, last)
-	for(int index = first; index < last - 1; ++index)
+	// Get the maximum value.
+	int max_value = data[first];
+	for(int index = first + 1; index < last; ++index)
 	{
-		// NOTE: `<=` not `<` Guarantee the Stability.
-		if(data[index] <= pivot)
+		if(max_value < data[index])
 		{
-			if(index != divide) // No need swap when both points to the same element.
-			{
-				// Condition: data[divide] > pivot >= data[index]
-				swap(data[index], data[divide]);
-			}
-			++divide;
+			max_value = data[index];
 		}
 	}
-	swap(data[divide], data[last - 1]);
-	return divide;
-}
-// TC: Best = O(nlogn), Average = O(nlogn), Worst = O(n^2)
-// SC: Best = O(logn), Worst = O(n)
-void QuickSort(int *data, int first, int last) // [first, last)
-{
-	if(last - first >= 2) // At least 2 elements
+	int temp[last]; // Temporary store the sorted elements.
+	int count[max_value + 1]; // count[value] is the count of elements that are <= value.
+	memset(count, 0, sizeof count);
+	// Count the frequency of every value in data.
+	for(int index = first; index < last; ++index)
 	{
-		int divide = Partition(data, first, last);
-		// Elements in [first, divide) are all <= [divide].
-		// [divide] is < all elements in [divide + 1, last)
-		QuickSort(data, first, divide);
-		QuickSort(data, divide + 1, last);
+		++count[data[index]];
+	}
+	// Compute how many elements are <= value.
+	for(int value = 1; value <= max_value; ++value)
+	{
+		count[value] += count[value - 1];
+	}
+	// 1. x elements <= value: place value in [x - 1].
+	// 2. Place from back to front: keep stability.
+	for(int index = last - 1; index >= first; --index)
+	{
+		temp[--count[data[index]]] = data[index];
+	}
+	// Copy the sorted elements into data.
+	for(int index = first; index < last; ++index)
+	{
+		data[index] = temp[index];
 	}
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void RadixSort(int *data, int total_digit, int length, int max_number)
-// we assume all numbers are in [0, 10^10 - 1], so total_digit = 10 and
-// because all numbers are in decimal, so max_number = 9.
+// n is the number of inputs, d is the number of digits, m is the max value in each digit.
+// TC: Best = Average = Worst = O(d(n + m))
+// SC: O(n + m)
+void RadixSort(int *data, int first, int last)
 {
-	int divisor = 1;  // help to get each digit number from least to most significant digits
-	// for each digit_number: use counting sort to sort.
-	for(int digit = 1; digit <= total_digit; digit++)
+	const int kMaxDigitNumber = 10; // 10^10 < 2^31 < 10^11, thus has at most 10 digits.
+	const int kMaxDigitValue = 9; // For decimal [0, 9]
+	// [0, kMaxDigitValue] has `kMaxDigitValue + 1` kinds of value.
+	const int kDigitValueNumber = kMaxDigitValue + 1;
+	int divisor = 1;
+	int digit_number[last]; // Store corresponding element's digit value.
+	for(int digit = 1; digit <= kMaxDigitNumber; ++digit)
 	{
-		// first store corresponding index element's digit_number of data
-		int digit_number[length];
-		for(int index = 0; index < length; index++)
+		// Get each digit number from least to most significant digit.
+		for(int index = first; index < last; ++index)
 		{
-			digit_number[index] = (data[index] / divisor) % 10;
+			digit_number[index] = (data[index] / divisor) % kDigitValueNumber;
 		}
-		// second use counting sort to sort data base on each digit_number
-		int temp[length], count[max_number + 1];
-		memset(count, 0, sizeof(count));
-		for(int index = 0; index < length; index++)
+		// Use counting sort to sort data base on digit_number.
+		int temp[last], count[kDigitValueNumber];
+		memset(count, 0, sizeof count);
+		for(int index = first; index < last; ++index)
 		{
-			count[digit_number[index]]++;
+			++count[digit_number[index]];
 		}
-		for(int index = 1; index <= max_number; index++)
+		for(int value = 1; value <= kMaxDigitValue; ++value)
 		{
-			count[index] += count[index - 1];
+			count[value] += count[value - 1];
 		}
-		for(int index = length - 1; index >= 0; index--)
+		for(int index = last - 1; index >= first; --index)
 		{
-			temp[count[digit_number[index]] - 1] = data[index];
-			count[digit_number[index]]--;
+			// Sort according to digit_number, but store data.
+			temp[--count[digit_number[index]]] = data[index];
 		}
-		for(int index = 0; index < length; index++)
+		for(int index = first; index < last; ++index)
 		{
 			data[index] = temp[index];
 		}
-		// third, update divisor to get the next high digit_number.
-		divisor *= 10;
+		// Update divisor to get the next digit_number.
+		divisor *= kDigitValueNumber;
 	}
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -208,9 +278,12 @@ void Test(const char *name, SortFunction Sort)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int main()
 {
-	Test("BubbleSort", BubbleSort);
 	Test("SelectionSort", SelectionSort);
-	Test("MergeSort", MergeSort);
+	Test("BubbleSort", BubbleSort);
+	Test("InsertionSort", InsertionSort);
 	Test("QuickSort", QuickSort);
+	Test("MergeSort", MergeSort);
+	//Test("HeapSort", HeapSort);
+	Test("CountingSort", CountingSort);
 	Test("RadixSort", RadixSort);
 }
