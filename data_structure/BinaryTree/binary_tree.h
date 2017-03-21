@@ -31,16 +31,16 @@ class BinaryTree
 	// create binary tree according postorder and inorder traversal
 	template<T> friend void CreateTreeByPostAndIn
 	(BinaryTreeNode<T>* &root, T postorder[], T inorder[], int first, int last);
-	template<T>	friend void PreorderRecursive(BinaryTreeNode<T> *root);  // pre-order traversal
+//	template<T>	friend void PreorderRecursive(BinaryTreeNode<T> *root);  // pre-order traversal
 	template<T> friend void PreorderLoop(BinaryTreeNode<T> *root);
-	template<T>	friend void InorderRecursive(BinaryTreeNode<T> *root);  // in-order traversal
+//	template<T>	friend void InorderRecursive(BinaryTreeNode<T> *root);  // in-order traversal
 	template<T> friend void InorderLoop(BinaryTreeNode<T> *root);
-	template<T>	friend void PostorderRecursive(BinaryTreeNode<T> *root);  // post-order traversal
+//	template<T>	friend void PostorderRecursive(BinaryTreeNode<T> *root);  // post-order traversal
 	template<T> friend void PostorderLoop(BinaryTreeNode<T> *root);
-	template<T>	friend void Levelorder(BinaryTreeNode<T> *root);  // level-order traversal
-	template<T>	friend void Delete(BinaryTreeNode<T>* &root);  // free a binary tree's memory
-	template<T>	friend int Height(BinaryTreeNode<T> *root);  // get tree's height
-	template<T>	friend void NodeCount(int &node_count, BinaryTreeNode<T> *node);  // get nodes' amount
+//	template<T>	friend void Levelorder(BinaryTreeNode<T> *root);  // level-order traversal
+//	template<T>	friend void Delete(BinaryTreeNode<T>* &root);  // free a binary tree's memory
+//	template<T>	friend int Height(BinaryTreeNode<T> *root);  // get tree's height
+//	template<T>	friend void NodeCount(int &node_count, BinaryTreeNode<T> *node);  // get nodes' amount
 
 public:
 	BinaryTree(): root_(nullptr) {}  // default constructor
@@ -89,7 +89,6 @@ void BinaryTree<T>::Initialization()
 		CreateTreeByPostAndIn(root_, postorder, inorder, 0, amount - 1);
 	}
 }
-
 template<typename T>
 void CreateTreeByPreAndIn(BinaryTreeNode<T>* &root, T preorder[], T inorder[], int first, int last)
 {
@@ -122,7 +121,6 @@ void CreateTreeByPreAndIn(BinaryTreeNode<T>* &root, T preorder[], T inorder[], i
 		CreateTreeByPreAndIn(root->right_, preorder, inorder, position + 1, last);
 	}
 }
-
 template<typename T>
 void CreateTreeByPostAndIn(BinaryTreeNode<T>* &root, T postorder[], T inorder[], int first, int last)
 {
@@ -158,13 +156,11 @@ BinaryTree<T>::~BinaryTree()
 {
 	Delete(root_);
 }
-
 template<typename T>
 bool BinaryTree<T>::IsEmpty()
 {
 	return root_ == nullptr;
 }
-
 template<typename T>
 void PreorderRecursive(BinaryTreeNode<T> *root)  // root->left->right
 {
@@ -175,7 +171,6 @@ void PreorderRecursive(BinaryTreeNode<T> *root)  // root->left->right
 		PreorderRecursive(root->right_);
 	}
 }
-
 template<typename T>
 void PreorderLoop(BinaryTreeNode<T> *root)
 {
@@ -194,7 +189,6 @@ void PreorderLoop(BinaryTreeNode<T> *root)
 		root = root->right_;  // make its right child as root, if any
 	}
 }
-
 template<typename T>
 void InorderRecursive(BinaryTreeNode<T> *root)  // left->root->right
 {
@@ -205,7 +199,6 @@ void InorderRecursive(BinaryTreeNode<T> *root)  // left->root->right
 		InorderRecursive(root->right_);
 	}
 }
-
 template<typename T>
 void InorderLoop(BinaryTreeNode<T> *root)
 {
@@ -223,7 +216,6 @@ void InorderLoop(BinaryTreeNode<T> *root)
 		root = root->right_;  // make its right child as root, if any
 	}
 }
-
 template<typename T>
 void PostorderRecursive(BinaryTreeNode<T> *root)  // left->right->root
 {
@@ -234,7 +226,6 @@ void PostorderRecursive(BinaryTreeNode<T> *root)  // left->right->root
 		cout << root->data_ << " ";
 	}
 }
-
 template<typename T>
 void PostorderLoop(BinaryTreeNode<T> *root)
 {
@@ -272,7 +263,6 @@ void PostorderLoop(BinaryTreeNode<T> *root)
 		}
 	}
 }
-
 template<typename T>
 void Levelorder(BinaryTreeNode<T> *root)  // from top to bottom; from left to right
 {

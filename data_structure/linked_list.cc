@@ -1,18 +1,4 @@
-#include <stdio.h>
-
-template<typename T>
-class LinkedList;
-template<typename T>
-class Node
-{
-	friend class LinkedList<T>;
-public:
-	Node(): data_(T()), next_(nullptr) {}
-	Node(const T &data): data_(data), next_(nullptr) {}
-private:
-	T data_;
-	Node<T> *next_;
-};
+#include "node.h"
 
 template<typename T>
 class LinkedList
@@ -23,9 +9,12 @@ public:
 
 	void Create();
 	void Insert(int index, const T &data);
-	void ShowContent();
 	void Delete(int index);
 	void Reverse();
+
+	bool Empty() const;
+	int Size() const;
+	void ShowContent() const;
 
 private:
 	Node<T> *first_;
@@ -35,7 +24,7 @@ private:
 template<typename T>
 LinkedList<T>::~LinkedList()
 {
-	while(first_ != nullptr)
+	while(Empty() == false)
 	{
 		Node<T> *next = first_->next_;
 		delete first_;
@@ -50,15 +39,15 @@ void LinkedList<T>::Create()
 	while(data_number-- > 0)
 	{
 		scanf("%d", &data);
-		Insert(length_, data);
+		Insert(Size(), data);
 	}
 }
 template<typename T>
 void LinkedList<T>::Insert(int index, const T &data)
 {
-	if(index < 0 || index > length_) // index must be in [0, length_]
+	if(index < 0 || index > Size()) // index must be in [0, Size()]
 	{
-		index = (index < 0 ? 0 : length_);
+		index = (index < 0 ? 0 : Size());
 	}
 	Node<T> *new_node = new Node<T>(data);
 	if(index == 0) // Insert as the first node.
@@ -79,25 +68,15 @@ void LinkedList<T>::Insert(int index, const T &data)
 	++length_;
 }
 template<typename T>
-void LinkedList<T>::ShowContent()
-{
-	printf("%02d data:", length_);
-	for(Node<T> *node = first_; node != nullptr; node = node -> next_)
-	{
-		printf(" %d", node->data_);
-	}
-	printf("\n");
-}
-template<typename T>
 void LinkedList<T>::Delete(int index)
 {
-	if(first_ == nullptr) // Can't delete from empty linked list.
+	if(Empty() == true) // Can't delete from empty linked list.
 	{
 		return;
 	}
-	if(index < 0 || index >= length_) // index must be in [0, length_ - 1]
+	if(index < 0 || index >= Size()) // index must be in [0, Size() - 1]
 	{
-		index = (index < 0 ? 0 : length_ - 1);
+		index = (index < 0 ? 0 : Size() - 1);
 	}
 	if(index == 0)
 	{
@@ -121,7 +100,7 @@ void LinkedList<T>::Delete(int index)
 template<typename T>
 void LinkedList<T>::Reverse()
 {
-	if(first_ == nullptr)
+	if(Empty() == true)
 	{
 		return;
 	}
@@ -136,15 +115,31 @@ void LinkedList<T>::Reverse()
 	}
 	first_ = before_node;
 }
+template<typename T>
+bool LinkedList<T>::Empty() const
+{
+	return first_ == nullptr;
+}
+template<typename T>
+int LinkedList<T>::Size() const
+{
+	return length_;
+}
+template<typename T>
+void LinkedList<T>::ShowContent() const
+{
+	printf("%02d data:", Size());
+	for(Node<T> *node = first_; node != nullptr; node = node -> next_)
+	{
+		printf(" %d", node->data_);
+	}
+	printf("\n");
+}
 
 int main()
 {
 	LinkedList<int> object; // Stack object's dtor is auto called when scope ends.
-	printf("0: Exit\n");
-	printf("1: Create\n");
-	printf("2: Insert\n");
-	printf("3: Delete\n");
-	printf("4: Reverse\n");
+	printf("0: Exit\n1: Create\n2: Insert\n3: Delete\n4: Reverse\n");
 
 	int operation, data, index;
 	while(scanf("%d", &operation) == 1)
@@ -189,6 +184,7 @@ int main()
 3 7
 3 5
 4
+0
 05 data: 1 2 3 4 5
 05 data: 5 4 3 2 1
 06 data: 0 5 4 3 2 1
