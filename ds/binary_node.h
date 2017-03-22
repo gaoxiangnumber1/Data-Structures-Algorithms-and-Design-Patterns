@@ -1,3 +1,5 @@
+#ifndef CPPLIB_DS_BINARY_NODE_H_
+#define CPPLIB_DS_BINARY_NODE_H_
 #include "queue.h"
 #include <stdio.h>
 
@@ -100,3 +102,4 @@ int NodeCount(BinaryNode<T> *root)
 	}
 	return NodeCount(root->left_) + NodeCount(root->right_) + 1;
 }
+#endif // CPPLIB_DS_BINARY_NODE_H_
