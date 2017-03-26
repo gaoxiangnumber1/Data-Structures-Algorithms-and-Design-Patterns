@@ -164,7 +164,41 @@ void MergeSort(int *data, int first, int last) // [first, last)
 	MergeSortMain(data, first, last, helper);
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void HeapSort() {}
+void MinHeapFixDown(int *data, int parent_index, int last)
+{
+	int min_child_index = parent_index * 2 + 1;
+	while(min_child_index < last)
+	{
+		if(min_child_index < last - 1 &&
+		        data[min_child_index] > data[min_child_index + 1])
+		{
+			++min_child_index;
+		}
+		if(data[parent_index] <= data[min_child_index])
+		{
+			return;
+		}
+		std::swap(data[parent_index], data[min_child_index]);
+		parent_index = min_child_index;
+		min_child_index = parent_index * 2 + 1;
+	}
+}
+// TC: Best = O(nlogn), Average = O(nlogn), Worst = O(nlogn)
+// SC: O(1)
+void HeapSort(int *data, int first, int last)
+{
+	// 1. Convert array to min heap. [first, first + length/2 - 1] has children.
+	for(int parent_index = first + (last - first) / 2 - 1; parent_index >= first; --parent_index)
+	{
+		MinHeapFixDown(data, parent_index, last);
+	}
+	// 2. Extract min.
+	for(int index = last; index > first;)
+	{
+		std::swap(data[first], data[--index]);
+		MinHeapFixDown(data, first, index);
+	}
+}
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // n is the number of inputs, m is the max value.
 // TC: Best = Average = Worst = O(n + m)
@@ -283,7 +317,7 @@ int main()
 	Test("InsertionSort", InsertionSort);
 	Test("QuickSort", QuickSort);
 	Test("MergeSort", MergeSort);
-	//Test("HeapSort", HeapSort);
+	Test("HeapSort", HeapSort);
 	Test("CountingSort", CountingSort);
 	Test("RadixSort", RadixSort);
 }
