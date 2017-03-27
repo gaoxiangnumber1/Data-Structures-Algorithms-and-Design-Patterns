@@ -15,7 +15,6 @@ public:
 	// Return nullptr if fails, otherwise return the node that replaces deleted node.
 	BinaryNode<T> *Delete(const T &data);
 
-	bool Empty() const;
 	void LevelOrder() const;
 	void Height() const;
 	void NodeCount() const;
@@ -51,7 +50,7 @@ BinaryNode<T>* BinarySearchTree<T>::Insert(const T &data)
 		return nullptr;
 	}
 	BinaryNode<T> *new_node = new BinaryNode<T>(data);
-	if(Empty() == true)
+	if(parent_node == nullptr) // BST is empty.
 	{
 		root_ = new_node;
 	}
@@ -115,7 +114,7 @@ BinaryNode<T>* BinarySearchTree<T>::Delete(const T &data)
 	}
 	BinaryNode<T> *child_node =
 	    (delete_node->left_ ? delete_node->left_ : delete_node->right_);
-	if(delete_node == root_)
+	if(parent_node == nullptr)
 	{
 		root_ = child_node;
 	}
@@ -128,13 +127,7 @@ BinaryNode<T>* BinarySearchTree<T>::Delete(const T &data)
 		parent_node->right_ = child_node;
 	}
 	delete delete_node;
-	delete_node = nullptr;
 	return child_node;
-}
-template<typename T>
-bool BinarySearchTree<T>::Empty() const
-{
-	return root_ == nullptr;
 }
 template<typename T>
 void BinarySearchTree<T>::LevelOrder() const

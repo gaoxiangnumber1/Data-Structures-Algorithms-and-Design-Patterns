@@ -1,3 +1,5 @@
+#ifndef CPPLIB_DS_QUEUE_H_
+#define CPPLIB_DS_QUEUE_H_
 #include "node.h"
 
 template<typename T>
@@ -106,3 +108,4 @@ void Queue<T>::ShowContent() const
 	}
 	printf("\n");
 }
+#endif // CPPLIB_DS_QUEUE_H_
