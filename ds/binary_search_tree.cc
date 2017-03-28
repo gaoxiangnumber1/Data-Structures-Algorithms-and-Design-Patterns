@@ -94,7 +94,7 @@ BinaryNode<T>* BinarySearchTree<T>::Delete(const T &data)
 {
 	BinaryNode<T> *parent_node = nullptr;
 	BinaryNode<T> *delete_node = Search(data, parent_node);
-	if(delete_node == nullptr) // data isn't in tree.
+	if(delete_node == nullptr) // Must FIRST check data isn't in tree.
 	{
 		return nullptr;
 	}
@@ -118,13 +118,16 @@ BinaryNode<T>* BinarySearchTree<T>::Delete(const T &data)
 	{
 		root_ = child_node;
 	}
-	else if(delete_node == parent_node->left_)
+	else
 	{
-		parent_node->left_ = child_node;
-	}
-	else if(delete_node == parent_node->right_)
-	{
-		parent_node->right_ = child_node;
+		if(delete_node == parent_node->left_)
+		{
+			parent_node->left_ = child_node;
+		}
+		else
+		{
+			parent_node->right_ = child_node;
+		}
 	}
 	delete delete_node;
 	return child_node;

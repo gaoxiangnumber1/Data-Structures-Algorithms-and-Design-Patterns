@@ -14,11 +14,11 @@ void SelectionSort(int *data, int first, int last)
 	for(int first_unsorted = first; first_unsorted < last - 1; ++first_unsorted)
 	{
 		int min_index = first_unsorted;
-		for(int unsorted_index = first_unsorted + 1; unsorted_index < last; ++unsorted_index)
+		for(int compare_index = first_unsorted + 1; compare_index < last; ++compare_index)
 		{
-			if(data[min_index] > data[unsorted_index])
+			if(data[min_index] > data[compare_index])
 			{
-				min_index = unsorted_index;
+				min_index = compare_index;
 			}
 		}
 		if(min_index != first_unsorted)
@@ -34,18 +34,19 @@ void SelectionSort(int *data, int first, int last)
 // SC: O(1)
 void BubbleSort(int *data, int first, int last) // [first, last)
 {
-	int unsorted_number = last - first;
 	// [first, first + unsorted_number) is unsorted, [first + unsorted_number, last) is sorted.
-	while(unsorted_number > 0)
+	for(int unsorted_number = last - first; unsorted_number > 0; )
 	{
 		int last_swap_index = -1;
 		// Traverse [first, first + unsorted_number)
-		for(int index = first + 1; index < first + unsorted_number; ++index)
+		for(int latter_swap_index = first + 1;
+		        latter_swap_index < first + unsorted_number;
+		        ++latter_swap_index)
 		{
-			if(data[index - 1] > data[index])
+			if(data[latter_swap_index - 1] > data[latter_swap_index])
 			{
-				swap(data[index - 1], data[index]);
-				last_swap_index = index;
+				swap(data[latter_swap_index - 1], data[latter_swap_index]);
+				last_swap_index = latter_swap_index;
 			}
 		}
 		// [first, last_swap_index) is unsorted, [last_swap_index, last) is sorted.
@@ -58,13 +59,14 @@ void BubbleSort(int *data, int first, int last) // [first, last)
 void InsertionSort(int *data, int first, int last)
 {
 	// [first, first_unsorted) is sorted, [first_unsorted, last) is unsorted.
-	for(int first_unsorted = first + 1; first_unsorted < last; ++first_unsorted)
+	for(int first_unsorted = first; first_unsorted < last; ++first_unsorted)
 	{
-		int swap_index = first_unsorted;
-		while(swap_index > first && data[swap_index - 1] > data[swap_index])
+		int latter_swap_index = first_unsorted;
+		while(latter_swap_index > first &&
+		        data[latter_swap_index - 1] > data[latter_swap_index])
 		{
-			swap(data[swap_index - 1], data[swap_index]);
-			--swap_index;
+			swap(data[latter_swap_index - 1], data[latter_swap_index]);
+			--latter_swap_index;
 		}
 		// One more element is sorted.
 		// [first, first_unsorted + 1) is sorted; [first_unsorted + 1, last) is unsorted.
@@ -91,7 +93,7 @@ int Partition(int *data, int first, int last) // O(n)
 	// divide has two possible values:
 	// 1. divide < last - 1: [divide] > pivot(i.e., [last - 1]), swap them.
 	// 2. divide = last - 1: [divide] = pivot, no need swap.
-	if(divide < last - 1)
+	if(divide != last - 1)
 	{
 		swap(data[divide], data[last - 1]);
 	}

@@ -34,8 +34,9 @@ void MinHeapFixDown(T *data, int parent_index, int last)
 }
 
 template<typename T>
-struct MinHeap
+class MinHeap
 {
+public:
 	MinHeap(): current_length_(0), length_(0), data_(nullptr) {}
 	~MinHeap();
 
@@ -44,7 +45,7 @@ struct MinHeap
 	void Delete();
 
 	void ShowContent() const;
-
+private:
 	int current_length_;
 	int length_;
 	T *data_;
@@ -70,8 +71,11 @@ void MinHeap<T>::Create()
 template<typename T>
 void MinHeap<T>::Insert(const T &data)
 {
-	data_[current_length_++] = data;
-	MinHeapFixUp(data_, current_length_ - 1);
+	if(current_length_ < length_)
+	{
+		data_[current_length_++] = data;
+		MinHeapFixUp(data_, current_length_ - 1);
+	}
 }
 template<typename T>
 void MinHeap<T>::Delete()
