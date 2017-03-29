@@ -150,7 +150,7 @@ void MergeSortMain(int *data, int first, int last, int *helper)
 	if(last - first >= 2) // Only 1 element is auto sorted.
 	{
 		// Divide: divide n-element array into two n/2-element subarrays.
-		int middle = first + ((last - first) >> 1);
+		int middle = first + (last - first) / 2;
 		// Conquer: sort two subarrays [first, middle) and [middle, last) recursively.
 		MergeSortMain(data, first, middle, helper);
 		MergeSortMain(data, middle, last, helper);
@@ -176,7 +176,7 @@ void MinHeapFixDown(int *data, int parent_index, int last)
 		{
 			++min_child_index;
 		}
-		if(data[parent_index] <= data[min_child_index])
+		if(data[parent_index] <= data[min_child_index]) // `=` guarantee stable.
 		{
 			return;
 		}
@@ -195,10 +195,13 @@ void HeapSort(int *data, int first, int last)
 		MinHeapFixDown(data, parent_index, last);
 	}
 	// 2. Extract min.
-	for(int index = last; index > first;)
+	for(int index = last - 1; index >= first; --index)
 	{
-		std::swap(data[first], data[--index]);
-		MinHeapFixDown(data, first, index);
+		if(data[first] != data[index]) // Guarantee stable.
+		{
+			std::swap(data[first], data[index]);
+			MinHeapFixDown(data, first, index);
+		}
 	}
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -216,9 +219,9 @@ void CountingSort(int *data, int first, int last) // [first, last)
 			max_value = data[index];
 		}
 	}
-	int temp[last]; // Temporary store the sorted elements.
 	int count[max_value + 1]; // count[value] is the count of elements that are <= value.
 	memset(count, 0, sizeof count);
+	int temp[last]; // Temporary store the sorted elements.
 	// Count the frequency of every value in data.
 	for(int index = first; index < last; ++index)
 	{
@@ -247,24 +250,18 @@ void CountingSort(int *data, int first, int last) // [first, last)
 // SC: O(n + m)
 void RadixSort(int *data, int first, int last)
 {
-	const int kMaxDigitNumber = 10; // 10^10 < 2^31 < 10^11, thus has at most 10 digits.
-	const int kMaxDigitValue = 9; // For decimal [0, 9]
-	// [0, kMaxDigitValue] has `kMaxDigitValue + 1` kinds of value.
+	const int kMaxDigitValue = 9;
 	const int kDigitValueNumber = kMaxDigitValue + 1;
+	int digit_number[last], count[kDigitValueNumber], temp[last];
+	const int kMaxDigitNumber = 10; // 10^10 < 2^31 < 10^11, thus has at most 10 digits.
 	int divisor = 1;
-	int digit_number[last]; // Store corresponding element's digit value.
 	for(int digit = 1; digit <= kMaxDigitNumber; ++digit)
 	{
+		memset(count, 0, sizeof count);
 		// Get each digit number from least to most significant digit.
 		for(int index = first; index < last; ++index)
 		{
 			digit_number[index] = (data[index] / divisor) % kDigitValueNumber;
-		}
-		// Use counting sort to sort data base on digit_number.
-		int temp[last], count[kDigitValueNumber];
-		memset(count, 0, sizeof count);
-		for(int index = first; index < last; ++index)
-		{
 			++count[digit_number[index]];
 		}
 		for(int value = 1; value <= kMaxDigitValue; ++value)
