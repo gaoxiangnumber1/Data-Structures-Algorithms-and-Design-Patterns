@@ -1,4 +1,5 @@
 #include "vertex.h"
+#include "min_heap.h"
 
 template<typename T>
 class Graph
@@ -9,9 +10,10 @@ public:
 
 	void Create();
 	void Insert(const T &src, const T &dest, int weight);
-	void DFS();
-	void BFS();
+	void DFS(int src);
+	void BFS(int src);
 	void TopologicalSort();
+	void DijkstraShortestPath(int src);
 
 private:
 	void Refresh();
@@ -42,7 +44,7 @@ void Graph<T>::Create()
 	graph_ = new Vertex<T> [size_];
 	for(int index = 0; index < size_; ++index)
 	{
-		graph_[index].data_ = index;
+		graph_[index].index_ = index;
 	}
 	int edge_number;
 	scanf("%d", &edge_number);
@@ -59,16 +61,16 @@ void Graph<T>::Insert(const T &src, const T &dest, int weight)
 {
 	Vertex<T> *new_node = new Vertex<T>(dest, weight);
 	Vertex<T> *vertex = graph_[src].next_;
-	if(vertex == nullptr || vertex->data_ > new_node->data_)
+	if(vertex == nullptr || vertex->index_ > new_node->index_)
 	{
 		graph_[src].next_ = new_node;
 		new_node->next_ = vertex;
 	}
 	else
 	{
-		while(vertex->data_ < new_node->data_ &&
+		while(vertex->index_ < new_node->index_ &&
 		        vertex->next_ != nullptr &&
-		        vertex->next_->data_ < new_node->data_)
+		        vertex->next_->index_ < new_node->index_)
 		{
 			vertex = vertex->next_;
 		}
@@ -79,17 +81,17 @@ void Graph<T>::Insert(const T &src, const T &dest, int weight)
 	++graph_[dest].in_degree_;
 }
 template<typename T>
-void Graph<T>::DFS()
+void Graph<T>::DFS(int src)
 {
 	printf("DFS: ");
-	::DFS(0, graph_);
+	::DFS(src, graph_);
 	Refresh();
 }
 template<typename T>
-void Graph<T>::BFS()
+void Graph<T>::BFS(int src)
 {
 	printf("BFS: ");
-	::BFS(0, graph_);
+	::BFS(src, graph_);
 	Refresh();
 }
 template<typename T>
@@ -117,17 +119,77 @@ void Graph<T>::TopologicalSort()
 			        vertex = vertex->next_)
 			{
 				--graph_[data[process_index]].out_degree_;
-				if(--graph_[vertex->data_].in_degree_ == 0 &&
-				        graph_[vertex->data_].visited_ == false)
+				if(--graph_[vertex->index_].in_degree_ == 0 &&
+				        graph_[vertex->index_].visited_ == false)
 				{
-					data[++sorted_index] = vertex->data_;
+					data[++sorted_index] = vertex->index_;
 					printf("%d ", data[sorted_index]);
-					graph_[vertex->data_].visited_ = true;
+					graph_[vertex->index_].visited_ = true;
 				}
 			}
 		}
 	}
 	Refresh();
+}
+template<typename T>
+void Graph<T>::DijkstraShortestPath(int src)
+{
+	const int kMax = 0x7fffffff;
+	int pre_vertex[size_], path_cost[size_];
+	for(int index = 0; index < size_; ++index)
+	{
+		pre_vertex[index] = -1;
+		path_cost[index] = kMax;
+	}
+
+	pre_vertex[src] = src;
+	path_cost[src] = 0;
+	MinHeap<int, int> min_heap(size_);
+	for(Vertex<T> *vertex = graph_[src].next_; vertex != nullptr; vertex = vertex->next_)
+	{
+		pre_vertex[vertex->index_] = src;
+		path_cost[vertex->index_] = vertex->weight_;
+		min_heap.Insert(path_cost[vertex->index_], vertex->index_);
+	}
+	while(min_heap.Empty() == false)
+	{
+		T min_cost_index = min_heap.ExtractMinValue();
+		for(Vertex<T> *vertex = graph_[min_cost_index].next_;
+		        vertex != nullptr;
+		        vertex = vertex->next_)
+		{
+			if(path_cost[vertex->index_] > path_cost[min_cost_index] + vertex->weight_)
+			{
+				path_cost[vertex->index_] = path_cost[min_cost_index] + vertex->weight_;
+				if(pre_vertex[vertex->index_] == -1)
+				{
+					min_heap.Insert(path_cost[vertex->index_], vertex->index_);
+				}
+				pre_vertex[vertex->index_] = min_cost_index;
+			}
+		}
+	}
+
+	for(int index = 0; index < size_; ++index)
+	{
+		int temp_index = index, path[size_], edge_number = 0;
+		while(pre_vertex[temp_index] != src)
+		{
+			path[edge_number++] = pre_vertex[temp_index];
+			temp_index = pre_vertex[temp_index];
+		}
+		printf("(%d, %d) cost = %d edge = %d: %d",
+		       src,
+		       index,
+		       path_cost[index],
+		       index == src ? 0 : edge_number + 1,
+		       src);
+		for(int cnt = edge_number - 1; cnt >= 0; --cnt)
+		{
+			printf(" -> %d", path[cnt]);
+		}
+		printf(" -> %d\n", index);
+	}
 }
 template<typename T>
 void Graph<T>::Refresh()
@@ -143,7 +205,7 @@ void Graph<T>::Refresh()
 		for(Vertex<T> *vertex = graph_[index].next_; vertex != nullptr; vertex = vertex->next_)
 		{
 			++graph_[index].out_degree_;
-			++graph_[vertex->data_].in_degree_;
+			++graph_[vertex->index_].in_degree_;
 		}
 	}
 	printf("\n");
@@ -164,9 +226,10 @@ int main()
 			graph.Create();
 			break;
 		}
-		graph.DFS();
-		graph.BFS();
+		graph.DFS(0);
+		graph.BFS(0);
 		graph.TopologicalSort();
+		graph.DijkstraShortestPath(0);
 	}
 }
 /*
@@ -179,7 +242,12 @@ int main()
 3 1 3
 4 2 6
 0
-DFS: 0 1 2 4 3
+DFS: 0 1 2 3 4
 BFS: 0 1 3 2 4
 TLS: 0 3 1 4 2
+(0, 0) cost = 0 edge = 0: 0 -> 0
+(0, 1) cost = 8 edge = 2: 0 -> 3 -> 1
+(0, 2) cost = 9 edge = 3: 0 -> 3 -> 1 -> 2
+(0, 3) cost = 5 edge = 1: 0 -> 3
+(0, 4) cost = 7 edge = 2: 0 -> 3 -> 4
 */

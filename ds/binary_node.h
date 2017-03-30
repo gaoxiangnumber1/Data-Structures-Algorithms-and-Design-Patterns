@@ -11,7 +11,10 @@ struct BinaryNode
 	BinaryNode(const T &data,
 	           BinaryNode<T> *left = nullptr,
 	           BinaryNode<T> *right = nullptr):
-		data_(data), left_(left), right_(right) {}
+		data_(data),
+		left_(left),
+		right_(right)
+	{}
 
 	T data_;
 	BinaryNode<T> *left_;
@@ -19,13 +22,14 @@ struct BinaryNode
 };
 
 template<typename T>
-void Delete(BinaryNode<T> *root)
+void Delete(BinaryNode<T> *&root)
 {
 	if(root != nullptr)
 	{
 		Delete(root->left_);
 		Delete(root->right_);
 		delete root;
+		root = nullptr;
 	}
 }
 template<typename T>

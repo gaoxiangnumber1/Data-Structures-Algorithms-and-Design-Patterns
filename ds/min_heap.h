@@ -54,6 +54,10 @@ public:
 	void Create();
 	void Insert(const KeyType &key, const ValueType &value);
 	ValueType ExtractMinValue();
+	bool Empty() const
+	{
+		return current_length_ == 0;
+	}
 
 	void ShowContent() const;
 

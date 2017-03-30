@@ -30,7 +30,6 @@ template<typename T>
 BinaryTree<T>::~BinaryTree()
 {
 	::Delete(root_);
-	root_ = nullptr;
 }
 template<typename T>
 void BinaryTree<T>::CreateCompleteBinaryTreeByLevel()

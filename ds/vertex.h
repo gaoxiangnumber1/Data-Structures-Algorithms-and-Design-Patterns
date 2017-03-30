@@ -1,11 +1,13 @@
+#ifndef CPPLIB_DS_VERTEX_H_
+#define CPPLIB_DS_VERTEX_H_
+
 #include "queue.h"
-#include <stdio.h>
 
 template<typename T>
 struct Vertex
 {
 	Vertex():
-		data_(),
+		index_(),
 		weight_(0),
 		in_degree_(0),
 		out_degree_(0),
@@ -13,7 +15,7 @@ struct Vertex
 		next_(nullptr)
 	{}
 	Vertex(const T &data, int weight = 0, Vertex<T> *next = nullptr):
-		data_(data),
+		index_(data),
 		weight_(weight),
 		in_degree_(0),
 		out_degree_(0),
@@ -21,7 +23,7 @@ struct Vertex
 		next_(next)
 	{}
 
-	T data_;
+	T index_;
 	int weight_;
 	int in_degree_;
 	int out_degree_;
@@ -38,7 +40,7 @@ void DFS(int index, Vertex<T> *graph)
 		graph[index].visited_ = true;
 		for(Vertex<T> *node = graph[index].next_; node != nullptr; node = node->next_)
 		{
-			DFS(node->data_, graph);
+			DFS(node->index_, graph);
 		}
 	}
 }
@@ -55,10 +57,10 @@ void BFS(int index, Vertex<T> *graph)
 		Visit(root);
 		for(Vertex<T> *node = root->next_; node != nullptr; node = node->next_)
 		{
-			if(graph[node->data_].visited_ == false)
+			if(graph[node->index_].visited_ == false)
 			{
-				queue.PushBack(&graph[node->data_]);
-				graph[node->data_].visited_ = true;
+				queue.PushBack(&graph[node->index_]);
+				graph[node->index_].visited_ = true;
 			}
 		}
 	}
@@ -66,5 +68,6 @@ void BFS(int index, Vertex<T> *graph)
 template<typename T>
 void Visit(const Vertex<T> *root)
 {
-	printf("%d ", root->data_);
+	printf("%d ", root->index_);
 }
+#endif // CPPLIB_DS_VERTEX_H_
