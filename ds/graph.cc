@@ -59,23 +59,40 @@ void Graph<T>::Create()
 template<typename T>
 void Graph<T>::Insert(const T &src, const T &dest, int weight)
 {
-	Vertex<T> *new_node = new Vertex<T>(dest, weight);
+	Vertex<T> *new_vertex = new Vertex<T>(dest, weight);
 	Vertex<T> *vertex = graph_[src].next_;
-	if(vertex == nullptr || vertex->index_ > new_node->index_)
+	if(vertex == nullptr || vertex->index_ > new_vertex->index_) // Insert at first position.
 	{
-		graph_[src].next_ = new_node;
-		new_node->next_ = vertex;
+		graph_[src].next_ = new_vertex;
+		new_vertex->next_ = vertex;
+	}
+	else if(vertex->index_ == new_vertex->index_) // Same as first vertex, update it.
+	{
+		vertex->weight_ = new_vertex->weight_;
+		delete new_vertex;
+		return;
 	}
 	else
 	{
-		while(vertex->index_ < new_node->index_ &&
-		        vertex->next_ != nullptr &&
-		        vertex->next_->index_ < new_node->index_)
+		for(Vertex<T> *next_vertex;
+		        vertex->index_ < new_vertex->index_;
+		        vertex = next_vertex)
 		{
-			vertex = vertex->next_;
+			next_vertex = vertex->next_;
+			// Insert between: vertex -> new_vertex -> next_vertex.
+			if(next_vertex == nullptr || next_vertex->index_ > new_vertex->index_)
+			{
+				vertex->next_ = new_vertex;
+				new_vertex->next_ = next_vertex;
+				break;
+			}
+			else if(next_vertex->index_ == new_vertex->index_) // Update existing vertex.
+			{
+				next_vertex->weight_ = new_vertex->weight_;
+				delete new_vertex;
+				return;
+			}
 		}
-		new_node->next_ = vertex->next_;
-		vertex->next_ = new_node;
 	}
 	++graph_[src].out_degree_;
 	++graph_[dest].in_degree_;
@@ -98,15 +115,15 @@ template<typename T>
 void Graph<T>::TopologicalSort()
 {
 	printf("TLS: ");
-	T data[size_];
+	T topo_index[size_];
 	int sorted_index = -1;
 	for(int index = 0; index < size_; ++index)
 	{
-		if(graph_[index].visited_ == false && graph_[index].in_degree_ == 0)
+		// No need check visited_ because after we record vertex that in_degree is 0,
+		// we can't reach it again since its in_degree_ is 0.
+		if(graph_[index].in_degree_ == 0)
 		{
-			data[++sorted_index] = index;
-			printf("%d ", data[sorted_index]);
-			graph_[index].visited_ = true;
+			topo_index[++sorted_index] = graph_[index].index_;
 		}
 	}
 	int process_index = 0;
@@ -114,20 +131,22 @@ void Graph<T>::TopologicalSort()
 	{
 		for(; process_index <= sorted_index; ++process_index)
 		{
-			for(Vertex<T> *vertex = graph_[data[process_index]].next_;
+			int index = topo_index[process_index];
+			for(Vertex<T> *vertex = graph_[index].next_;
 			        vertex != nullptr;
 			        vertex = vertex->next_)
 			{
-				--graph_[data[process_index]].out_degree_;
-				if(--graph_[vertex->index_].in_degree_ == 0 &&
-				        graph_[vertex->index_].visited_ == false)
+				--graph_[index].out_degree_;
+				if(--graph_[vertex->index_].in_degree_ == 0)
 				{
-					data[++sorted_index] = vertex->index_;
-					printf("%d ", data[sorted_index]);
-					graph_[vertex->index_].visited_ = true;
+					topo_index[++sorted_index] = graph_[vertex->index_].index_;
 				}
 			}
 		}
+	}
+	for(int index = 0; index < size_; ++index)
+	{
+		printf("%d ", topo_index[index]);
 	}
 	Refresh();
 }
@@ -190,6 +209,7 @@ void Graph<T>::DijkstraShortestPath(int src)
 		}
 		printf(" -> %d\n", index);
 	}
+	Refresh();
 }
 template<typename T>
 void Graph<T>::Refresh()
@@ -233,7 +253,14 @@ int main()
 	}
 }
 /*
-1 5 7
+1 5 14
+0 1 100
+0 3 50
+1 2 10
+3 2 90
+3 4 20
+3 1 30
+4 2 60
 0 1 10
 0 3 5
 1 2 1

@@ -34,8 +34,11 @@ void Delete(BinaryNode<T> *&root)
 }
 template<typename T>
 void CreateTreeByPreAndIn(BinaryNode<T> *&root,
-                          T *pre, int &pre_index,
-                          T *in, int in_first, int in_last) // [in_last, in_last)
+                          T *pre,
+                          int &pre_index, // MUST &!
+                          T *in,
+                          int in_first,
+                          int in_last) // [in_last, in_last)
 {
 	if(in_first < in_last)
 	{
@@ -48,8 +51,11 @@ void CreateTreeByPreAndIn(BinaryNode<T> *&root,
 }
 template<typename T>
 void CreateTreeByPostAndIn(BinaryNode<T> *&root,
-                           T *post, int &post_index,
-                           T *in, int in_first, int in_last) // [in_last, in_last)
+                           T *post,
+                           int &post_index,
+                           T *in,
+                           int in_first,
+                           int in_last) // [in_last, in_last)
 {
 	if(in_first < in_last)
 	{

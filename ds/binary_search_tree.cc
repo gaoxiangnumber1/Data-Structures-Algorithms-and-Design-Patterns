@@ -27,7 +27,6 @@ template<typename T>
 BinarySearchTree<T>::~BinarySearchTree()
 {
 	::Delete(root_);
-	root_ = nullptr;
 }
 template<typename T>
 void BinarySearchTree<T>::Create()

@@ -38,9 +38,9 @@ void DFS(int index, Vertex<T> *graph)
 	{
 		Visit(&graph[index]);
 		graph[index].visited_ = true;
-		for(Vertex<T> *node = graph[index].next_; node != nullptr; node = node->next_)
+		for(Vertex<T> *vertex = graph[index].next_; vertex != nullptr; vertex = vertex->next_)
 		{
-			DFS(node->index_, graph);
+			DFS(vertex->index_, graph);
 		}
 	}
 }
@@ -48,19 +48,22 @@ template<typename T>
 void BFS(int index, Vertex<T> *graph)
 {
 	Queue<Vertex<T>*> queue;
-	queue.PushBack(&graph[index]);
-	graph[index].visited_ = true;
+	if(graph[index].visited_ == false)
+	{
+		queue.PushBack(&graph[index]);
+		graph[index].visited_ = true;
+	}
 	while(queue.Empty() == false)
 	{
 		Vertex<T> *root = queue.Front();
 		queue.PopFront();
 		Visit(root);
-		for(Vertex<T> *node = root->next_; node != nullptr; node = node->next_)
+		for(Vertex<T> *vertex = root->next_; vertex != nullptr; vertex = vertex->next_)
 		{
-			if(graph[node->index_].visited_ == false)
+			if(graph[vertex->index_].visited_ == false)
 			{
-				queue.PushBack(&graph[node->index_]);
-				graph[node->index_].visited_ = true;
+				queue.PushBack(&graph[vertex->index_]);
+				graph[vertex->index_].visited_ = true;
 			}
 		}
 	}
